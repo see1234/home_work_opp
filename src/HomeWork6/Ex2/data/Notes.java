@@ -2,39 +2,39 @@ package HomeWork6.Ex2.data;
 
 import HomeWork6.Ex2.database.DatabaseManager;
 import HomeWork6.Ex2.fields.NoteFields;
+import HomeWork6.Ex2.requests.Operation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Notes {
+public class Notes implements NoteInterface {
     private List<Note> noteList;
-    private DatabaseManager databaseManager;
-    public Notes(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
+    private Operation operation;
+    public Notes(Operation operation) {
+        this.operation = operation;
         this.noteList = new ArrayList<Note>();
-        loadNotes();
+        loadNotes((List<String>) this.operation.getNotes());
     }
-    public void loadNote(String head, String text, String data) {
-        this.noteList.add(new Note(head,text,data));
-    }
+    @Override
     public void createNote(String head, String text, String data) {
         Note note = new Note(head,text,data);
         this.noteList.add(note);
-        this.databaseManager.update(String.format("INSERT INTO notes (id, head, text, data) VALUES(%s,'%s','%s','%s')", note.getId(), note.getHeading(), note.getText(), note.getDate()));
+        this.operation.createNote(note);
     }
+    @Override
     public void deleteNote(int id) {
         for(int i = 0; i < noteList.size(); i++) {
             Note note = noteList.get(i);
             if(note.getId() == id) {
                 noteList.remove(note);
-                this.databaseManager.update(String.format("DELETE FROM notes WHERE id=%d", id));
+                this.operation.deleteNote(id);
                 break;
             }
         }
     }
-
+    @Override
     public void editNote(int id, NoteFields noteField, String edit) {
         for(int i = 0; i < noteList.size(); i++) {
             Note note = noteList.get(i);
@@ -48,26 +48,24 @@ public class Notes {
                 else {
                     new Exception("Такого типа нет (NOTEFIELDS)");
                 }
-                this.databaseManager.update(String.format("UPDATE notes SET text='%s', head='%s' WHERE id=%d", note.getText(), note.getHeading(), id));
+                this.operation.editNote(note, id);
                 break;
             }
         }
     }
-
+    @Override
     public List<Note> getNoteList() {
         return noteList;
     }
-
-    public void loadNotes() {
-        ResultSet resultSet = this.databaseManager.getResult("SELECT * FROM notes");
-        try {
-            while (resultSet.next()) {
-                loadNote(resultSet.getString("head"), resultSet.getString("text"), resultSet.getString("data"));
-            }
-            resultSet.close();
-        }
-        catch (SQLException ex) {
-            System.out.println(ex);
+    @Override
+    public void loadNote(String head, String text, String data) {
+        this.noteList.add(new Note(head,text,data));
+    }
+    @Override
+    public void loadNotes(List<String> stringList) {
+        for(String string : stringList) {
+            String[] args = string.split(";");
+            loadNote(args[0],args[1],args[2]);
         }
     }
 }
