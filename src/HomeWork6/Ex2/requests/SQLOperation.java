@@ -2,6 +2,7 @@ package HomeWork6.Ex2.requests;
 
 import HomeWork6.Ex2.data.Note;
 import HomeWork6.Ex2.database.DatabaseManager;
+import HomeWork6.Ex2.views.Console;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +12,7 @@ import java.util.List;
 public class SQLOperation implements Operation {
     private DatabaseManager databaseManager;
     public SQLOperation(DatabaseManager databaseManager) {
+        Console.getInstance().print("Загрузка SQLITE...");
         this.databaseManager = databaseManager;
     }
     @Override

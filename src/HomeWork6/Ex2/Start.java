@@ -15,4 +15,5 @@ public class Start {
         Notes notes = new Notes(operation);
         Console console = new Console(notes);
     }
+
 }
